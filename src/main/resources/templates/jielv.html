@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>生辰八字</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <script type="text/javascript" th:src="@{/js/tool.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script src="http://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+    <script type="text/javascript" th:src="@{/layui/layui.all.js}"></script>
+    <script type="text/javascript" th:src="@{/js/calendar.js}"></script>
+    <script type="text/javascript" th:src="@{/js/constant.js}"></script>
+    <script type="text/javascript" th:src="@{/js/search.js}"></script>
+    <script type="text/javascript" th:src="@{/js/fortuneTeller.js}"></script>
+    <script type="text/javascript" th:src="@{/js/res.js}"></script>
+</head>
+<script th:inline="javascript">
+    var datalon = /*[[${measure.lng}]]*/ null;
+    var dataYear = /*[[${measure.year}]]*/ null;
+    var dataMonth = /*[[${measure.month}]]*/ null;
+    var dataDay = /*[[${measure.day}]]*/ null;
+    var dataTime = /*[[${measure.time}]]*/ null;
+    var dataSex = /*[[${measure.sex}]]*/ null;
+    var basePath = /*[[${#httpServletRequest.getScheme() + "://" + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]]*/"";
+</script>
+<body>
+<div>
+    <button onclick="getAllData(dataYear, dataMonth, dataDay, dataTime, datalon, dataSex)">test</button>
+</div>
+<div style="width: 800px;">
+    <div style="width: 40%; float: left;">
+        起始年：
+        <select name="startYear" onchange="startChange(this)">
+        </select>
+    </div>
+    <div style="width: 40%; float: left;">
+        结束年：
+        <select name="endYear" onchange="endChange(this)">
+        </select>
+    </div>
+    <div style="width: 20%; float: left;">
+        <button id="sub" onclick="refList()">确认</button>
+    </div>
+</div>
+<div>
+    <input type="text" name="searchYear" placeholder="输入查询年" />
+    <button id="search">查询</button>
+</div>
+<div style="width: 800px">
+    <div id="sexFor"></div>
+    <div id="date"></div>
+    <div id="dateY"></div>
+</div>
+<table border="0" style="width: 800px;">
+    <tr>
+        <td colspan="4">太阳</td>
+    </tr>
+    <tr id="sun">
+        <td style="width: 10%">六柱</td>
+        <td style="width: 10%">干支</td>
+        <td style="width: 50%">节律首次更换时间</td>
+        <td style="width: 30%">以后更换间隔时间</td>
+    </tr>
+    <tr>
+        <td colspan="4">月亮</td>
+    </tr>
+    <tr id="moon">
+        <td>六柱</td>
+        <td>干支</td>
+        <td>节律首次更换时间</td>
+        <td>以后更换间隔时间</td>
+    </tr>
+</table>
+<!--<div id="wuXSun" style="width: 800px;">
+
+</div>
+<div id="wuXMoon" style="width: 800px;">
+
+</div>-->
+<div>-----------------------------------------------------------------------------------------------------</div>
+<div id="content" style="width: 800px;">
+
+</div>
+</body>
+</html>

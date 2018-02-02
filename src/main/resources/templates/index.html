@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>测算</title>
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script th:inline="javascript">
+        var res = /*[[${globals}]]*/ null;
+        var basePath = /*[[${#httpServletRequest.getScheme() + "://" + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]]*/"";
+    </script>
+    <script type="text/javascript" th:src="@{/js/index.js}"></script>
+</head>
+<body>
+<div>
+    <div id="cityInfo">
+        <select name="country">
+            <option value="">-选择国家-</option>
+            <option th:each="area:${areas}" th:value="${area.cnty}" th:text="${area.cnty}"></option>
+        </select>
+        <select name="province">
+            <option value="">-选择省-</option>
+        </select>
+        <select name="city">
+            <option value="">-选择市-</option>
+        </select>
+    </div>
+    <form name="measure" th:action="@{/measure}" th:method="post" th:target="_blank" th:object="${measure}">
+        <input type="text" name="name" placeholder="姓名" />
+        <input type="text" name="lng" placeholder="经度" />
+        <input type="text" name="year" placeholder="年" />
+        <input type="text" name="month" placeholder="月" />
+        <input type="text" name="day" placeholder="日" />
+        <input type="text" name="time" placeholder="时" />
+        <select name="sex">
+            <option value="0">男</option>
+            <option value="1">女</option>
+        </select>
+        <input type="submit" />
+    </form>
+</div>
+</body>
+</html>

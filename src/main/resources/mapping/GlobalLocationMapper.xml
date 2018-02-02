@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.measure.mapper.GlobalLocationMapper" >
+  <resultMap id="BaseResultMap" type="com.jk.measure.model.GlobalLocation" >
+    <id column="id" property="id" />
+    <result column="pid" property="pid" />
+    <result column="level" property="level" />
+    <result column="path" property="path" />
+    <result column="code" property="code" />
+    <result column="area_number" property="areaNumber" />
+    <result column="area_phone_number" property="areaPhoneNumber" />
+    <result column="abbreviation" property="abbreviation" />
+    <result column="iso" property="iso" />
+    <result column="chinese_name" property="chineseName" />
+    <result column="english_name" property="englishName" />
+    <result column="pinyin" property="pinyin" />
+    <result column="lng" property="lng" />
+    <result column="lat" property="lat" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, pid, level, path, code, area_number, area_phone_number, abbreviation, iso, chinese_name, 
+    english_name, pinyin
+  </sql>
+  <update id="updateGlobal" parameterType="list">
+    <foreach collection="list" item="global" separator=";">
+      update global_location SET lat = #{global.lat}, lng = #{global.lng}
+      where id = #{global.id}
+    </foreach>
+  </update>
+  <select id="selectState" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM global_location
+  </select>
+  <select id="selectGlobal" resultMap="BaseResultMap" parameterType="Integer">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM `global_location` WHERE id = #{id}
+  </select>
+</mapper>
