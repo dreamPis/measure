@@ -42,6 +42,86 @@ function inArray(elem, arr, i) {
     return -1;
 }
 
+function getJieQiDate(year, month){
+    var jieQi = getJieQi(year, month);
+    return toDate(jieQi.y, jieQi.m, jieQi.d, jieQi.jqsj.split(":")[0], jieQi.jqsj.split(":")[1], jieQi.jqsj.split(":")[2]);
+}
+
+function addDateToTime(date, startTime){
+    if(date.year == null){
+        date.year = 0;
+    }
+    if(date.month == null){
+        date.month = 0;
+    }
+    if(date.day == null){
+        date.day = 0
+    }
+    if(date.hours == null){
+        date.hours = 0
+    }
+    if(date.minutes == null){
+        date.minutes = 0;
+    }
+    if(date.seconds == null){
+        date.seconds = 0;
+    }
+    var time = startTime;
+    var year = date.year;
+    var month = date.month;
+    if(year > 0){
+        var culYearTime = getJieQiDate(startTime.getFullYear(), 2);
+        var yearDiffDate;
+        var nextYearTime = getJieQiDate(time.getFullYear() + year, 2);
+        if(startTime > culYearTime){
+            yearDiffDate = getYearRhythm(startTime, false);
+            nextYearTime = getJieQiDate(nextYearTime.getFullYear(), nextYearTime.getMonth() + 1 + yearDiffDate.month);
+            nextYearTime.setDate(nextYearTime.getDate() + yearDiffDate.day);
+            nextYearTime.setHours(nextYearTime.getHours() + yearDiffDate.hours);
+            nextYearTime.setMinutes(nextYearTime.getMinutes() + yearDiffDate.minutes);
+            nextYearTime.setSeconds(nextYearTime.getSeconds() + yearDiffDate.seconds);
+        }else{
+            yearDiffDate = dateDiff(startTime, true);
+            nextYearTime = getJieQiDate(nextYearTime.getFullYear(), nextYearTime.getMonth() + 1 - yearDiffDate.month);
+            nextYearTime.setDate(nextYearTime.getDate() - yearDiffDate.day);
+            nextYearTime.setHours(nextYearTime.getHours() - yearDiffDate.hours);
+            nextYearTime.setMinutes(nextYearTime.getMinutes() - yearDiffDate.minutes);
+            nextYearTime.setSeconds(nextYearTime.getSeconds() - yearDiffDate.seconds);
+        }
+        time = nextYearTime;
+    }
+    if(month > 0){
+        var culMonthTime = getJieQiDate(time.getFullYear(), time.getMonth() + 1);
+        var monthDiffDate;
+        var nextMonthTime;
+        if((culMonthTime.getMonth() + 1 + date.month) > 12){
+            nextMonthTime = getJieQiDate(time.getFullYear() + 1, (culMonthTime.getMonth() + 1 + date.month)%12);
+        }else{
+            nextMonthTime = getJieQiDate(time.getFullYear(), culMonthTime.getMonth() + 1 + date.month);
+        }
+        if(time > culMonthTime){
+            monthDiffDate = getMonthRhythm(time, false);
+            nextMonthTime.setDate(nextMonthTime.getDate() + monthDiffDate.day);
+            nextMonthTime.setHours(nextMonthTime.getHours() + monthDiffDate.hours);
+            nextMonthTime.setMinutes(nextMonthTime.getMinutes() + monthDiffDate.minutes);
+            nextMonthTime.setSeconds(nextMonthTime.getSeconds() + monthDiffDate.seconds);
+
+        }else{
+            monthDiffDate = getMonthRhythm(time, true);
+            nextMonthTime.setDate(nextMonthTime.getDate() - monthDiffDate.day);
+            nextMonthTime.setHours(nextMonthTime.getHours() - monthDiffDate.hours);
+            nextMonthTime.setMinutes(nextMonthTime.getMinutes() - monthDiffDate.minutes);
+            nextMonthTime.setSeconds(nextMonthTime.getSeconds() - monthDiffDate.seconds);
+        }
+        time = nextMonthTime;
+    }
+    time.setDate(time.getDate() + date.day);
+    time.setHours(time.getHours() + date.hours);
+    time.setMinutes(time.getMinutes() + date.minutes);
+    time.setSeconds(time.getSeconds() + date.seconds);
+    return time;
+}
+
 /**
  * 年节律时间转换
  * @param startTime 开始时间
@@ -60,32 +140,28 @@ function coverDateToYear(startTime, times){
     data.hours = 30 * hours;
     data.minutes = 30 * minutes;
     data.seconds = 30 * seconds;
-    if(data.seconds > 60){
+    if(data.seconds >= 60){
         data.minutes = data.minutes + Math.floor(data.seconds/60);
         data.seconds = data.seconds%60;
     }
-    if(data.minutes > 60){
+    if(data.minutes >= 60){
         data.hours = data.hours + Math.floor(data.minutes/60);
         data.minutes = data.minutes%60;
     }
-    if(data.hours > 24){
+    if(data.hours >= 24){
         data.day = Math.floor(data.hours/24);
         data.hours = data.hours%24;
     }
-    if(data.day > 30){
+    if(data.day >= 30){
         data.month = data.month + Math.floor(data.day/30);
         data.day = data.day%30;
     }
-    if(data.month > 12){
-        data.year = Math.floor(data.month/12);
+    if(data.month >= 12){
+        data.year = data.year + Math.floor(data.month/12);
         data.month = data.month%12;
     }
-    time.setFullYear(time.getFullYear() + data.year);
-    time.setMonth(time.getMonth() + data.month);
-    time.setHours(time.getHours() + data.hours);
-    time.setMinutes(time.getMinutes() + data.minutes);
-    time.setSeconds(time.getSeconds() + data.seconds);
-    return time.Format("yyyy-MM-dd HH:mm:ss");
+
+    return addDateToTime(data, time).Format("yyyy-MM-dd HH:mm:ss");
 }
 
 /**
@@ -108,34 +184,28 @@ function coverDateToSeason(startTime, times){
     data.minutes = 80 * minutes;
     data.seconds = 80 * seconds;
 
-    if(data.seconds > 60){
+    if(data.seconds >= 60){
         data.minutes = data.minutes + Math.floor(data.seconds/60);
         data.seconds = data.seconds%60;
     }
-    if(data.minutes > 60){
+    if(data.minutes >= 60){
         data.hours = data.hours + Math.floor(data.minutes/60);
         data.minutes = data.minutes%60;
     }
-    if(data.hours > 24){
+    if(data.hours >= 24){
         data.day = data.day + Math.floor(data.hours/24);
         data.hours = data.hours%24;
     }
-    if(data.day > 30){
+    if(data.day >= 30){
         data.month = data.month + Math.floor(data.day/30);
         data.day = data.day%30;
     }
-    if(data.month > 12){
+    if(data.month >= 12){
         data.year = data.year + Math.floor(data.month/12);
         data.month = data.month%12;
     }
 
-    time.setFullYear(time.getFullYear() + data.year);
-    time.setMonth(time.getMonth() + data.month);
-    time.setDate(time.getDate() + data.day);
-    time.setHours(time.getHours() + data.hours);
-    time.setMinutes(time.getMinutes() + data.minutes);
-    time.setSeconds(time.getSeconds() + data.seconds);
-    return time.Format("yyyy-MM-dd HH:mm:ss");
+    return addDateToTime(data, time).Format("yyyy-MM-dd HH:mm:ss");
 }
 
 /**
@@ -156,28 +226,24 @@ function coverDateToMonth(startTime, times){
     data.day = 5 * hours;
     data.hours = 2 * minutes;
     data.minutes = 2 * seconds;
-    if(data.minutes > 60){
+    if(data.minutes >= 60){
         data.hours = data.hours + Math.floor(data.minutes/60);
         data.minutes = data.minutes%60;
     }
-    if(data.hours > 24){
+    if(data.hours >= 24){
         data.day = data.day + Math.floor(data.hours/24);
         data.hours = data.hours%24;
     }
-    if(data.day > 30){
+    if(data.day >= 30){
         data.month = data.month + Math.floor(data.day/30);
         data.day = data.day%30;
     }
-    if(data.month > 12){
+    if(data.month >= 12){
         data.year = data.year + Math.floor(data.month/12);
         data.month = data.month%12;
     }
-    time.setFullYear(time.getFullYear() + data.year);
-    time.setMonth(time.getMonth() + data.month);
-    time.setDate(time.getDate() + data.day);
-    time.setHours(time.getHours() + data.hours);
-    time.setMinutes(time.getMinutes() + data.minutes);
-    return time.Format("yyyy-MM-dd HH:mm:ss");
+
+    return addDateToTime(data, time).Format("yyyy-MM-dd HH:mm:ss");
 }
 
 /**
@@ -195,24 +261,20 @@ function coverDateToDay(startTime, times){
     data.day = 15 * hours;
     data.minutes = 18 * seconds;
     data.hours = 18 * minutes;
-    if(data.minutes > 60){
+    if(data.minutes >= 60){
         data.hours = data.hours + Math.floor(data.minutes/60);
         data.minutes = data.minutes%60;
     }
-    if(data.hours > 24){
+    if(data.hours >= 24){
         data.day = data.day + Math.floor(data.hours/24);
         data.hours = data.hours%24;
     }
-    if(data.day > 30){
+    if(data.day >= 30){
         data.month = data.month + Math.floor(data.day/30);
         data.day = data.day%30;
     }
 
-    time.setMonth(time.getMonth() + data.month);
-    time.setDate(time.getDate() + data.day);
-    time.setHours(time.getHours() + data.hours);
-    time.setMinutes(time.getMinutes() + data.minutes);
-    return time.Format("yyyy-MM-dd HH:mm:ss");
+    return addDateToTime(data, time).Format("yyyy-MM-dd HH:mm:ss");
 }
 
 /**
@@ -229,28 +291,24 @@ function coverDateToZhen(startTime, times){
     data.month = 4 * hours;
     data.day = 2 * minutes;
     data.minutes = 48 * seconds;
-    if(data.minutes > 60){
+    if(data.minutes >= 60){
         data.hours = Math.floor(data.minutes/60);
         data.minutes = data.minutes%60;
     }
-    if(data.hours > 24){
+    if(data.hours >= 24){
         data.day = data.day + Math.floor(data.hours/24);
         data.hours = data.hours%24;
     }
-    if(data.day > 30){
+    if(data.day >= 30){
         data.month = data.month + Math.floor(data.day/30);
         data.day = data.day%30;
     }
-    if(data.month > 12){
+    if(data.month >= 12){
         data.year = Math.floor(data.month/12);
         data.month = data.month%12;
     }
-    time.setYear(time.getFullYear() + data.year);
-    time.setMonth(time.getMonth() + data.month);
-    time.setDate(time.getDate() + data.day);
-    time.setHours(time.getHours() + data.hours);
-    time.setMinutes(time.getMinutes() + data.minutes);
-    return time.Format("yyyy-MM-dd HH:mm:ss");
+
+    return addDateToTime(data, time).Format("yyyy-MM-dd HH:mm:ss");
 }
 
 /**
@@ -267,28 +325,24 @@ function coverDateToShi(startTime, times){
     data.month = 6 * hours;
     data.day = 3 * minutes;
     data.minutes = 72 * seconds;
-    if(data.minutes > 60){
+    if(data.minutes >= 60){
         data.hours = Math.floor(data.minutes/60);
         data.minutes = data.minutes%60;
     }
-    if(data.hours > 24){
+    if(data.hours >= 24){
         data.day = data.day + Math.floor(data.hours/24);
         data.hours = data.hours%24;
     }
-    if(data.day > 30){
+    if(data.day >= 30){
         data.month = data.month + Math.floor(data.day/30);
         data.day = data.day%30;
     }
-    if(data.month > 12){
+    if(data.month >= 12){
         data.year = Math.floor(data.month/12);
         data.month = data.month%12;
     }
-    time.setYear(time.getFullYear() + data.year);
-    time.setMonth(time.getMonth() + data.month);
-    time.setDate(time.getDate() + data.day);
-    time.setHours(time.getHours() + data.hours);
-    time.setMinutes(time.getMinutes() + data.minutes);
-    return time.Format("yyyy-MM-dd HH:mm:ss");
+
+    return addDateToTime(data, time).Format("yyyy-MM-dd HH:mm:ss");
 }
 
 /**
