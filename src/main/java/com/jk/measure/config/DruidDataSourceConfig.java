@@ -1,5 +1,6 @@
 package com.jk.measure.config;
 
+import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.spring.stat.DruidStatInterceptor;
@@ -50,22 +51,6 @@ public class DruidDataSourceConfig {
         return filterRegistrationBean;
     }
 
-    // 按照BeanId来拦截配置 用来bean的监控
-    @Bean(value = "druid-stat-interceptor")
-    public DruidStatInterceptor DruidStatInterceptor() {
-        DruidStatInterceptor druidStatInterceptor = new DruidStatInterceptor();
-        return druidStatInterceptor;
-    }
-
-    @Bean
-    public BeanNameAutoProxyCreator beanNameAutoProxyCreator() {
-        BeanNameAutoProxyCreator beanNameAutoProxyCreator = new BeanNameAutoProxyCreator();
-        beanNameAutoProxyCreator.setProxyTargetClass(true);
-        // 设置要监控的bean的id
-        //beanNameAutoProxyCreator.setBeanNames("sysRoleMapper","loginController");
-        beanNameAutoProxyCreator.setInterceptorNames("druid-stat-interceptor");
-        return beanNameAutoProxyCreator;
-    }
 
     @Bean
     public WallFilter wallFilter(){
@@ -107,9 +92,9 @@ public class DruidDataSourceConfig {
         if(druidSettings.isPoolPreparedStatements()){
             dataSource.setMaxPoolPreparedStatementPerConnectionSize(druidSettings.getMaxPoolPreparedStatementPerConnectionSize());
         }
-        /*List filterList=new ArrayList<>();
+        List<Filter> filterList=new ArrayList<>();
         filterList.add(wallFilter());
-        dataSource.setProxyFilters(filterList);//这是最关键的,否则SQL监控无法生效*/
+        dataSource.setProxyFilters(filterList);//这是最关键的,否则SQL监控无法生效
         dataSource.setFilters(druidSettings.getFilters());
         String connectionPropertiesStr = druidSettings.getConnectionProperties();
         if(connectionPropertiesStr != null && !"".equals(connectionPropertiesStr)){
